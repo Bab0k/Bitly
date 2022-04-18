@@ -2,40 +2,43 @@
 {
     using Bitly.Database;
     using Bitly.Models;
-    using Bitly.Services.UrlService;
+    using Microsoft.AspNetCore.Http;
     using Microsoft.EntityFrameworkCore;
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
+    using System.Linq;
+    using System.Security.Claims;
 
     public class UserService : IUserService
     {
         private readonly BaseDbContext _baseDbContext;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public UserService(BaseDbContext baseDbContext)
+        public UserService(BaseDbContext baseDbContext, IHttpContextAccessor httpContextAccessor)
         {
             _baseDbContext = baseDbContext;
+            _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task AddUser(string name)
-        {
-            using (var transaction = _baseDbContext.Database.BeginTransaction())
-            {
-                try
-                {
-                    var result = await _baseDbContext.Users
-                        .AddAsync(new User
-                        {
-                            Name = name,
-                        });
+        public int UserId => int.Parse(_httpContextAccessor.HttpContext.User.Claims.FirstOrDefault(u => u.Type == ClaimTypes.NameIdentifier).Value);
 
-                    await _baseDbContext.SaveChangesAsync();
-                    transaction.Commit();
-                }
-                catch
-                {
-                    throw new Exception("Something went wrong");
-                }
+        public async Task AddUser(string login, string password)
+        {
+            try
+            {
+                var result = await _baseDbContext.Users
+                    .AddAsync(new User
+                    {
+                        Login = login,
+                        Password = password,
+                    });
+
+                await _baseDbContext.SaveChangesAsync();
+            }
+            catch
+            {
+                throw new Exception("Something went wrong");
             }
         }
 
@@ -48,40 +51,6 @@
                 result = await _baseDbContext.Users.ToListAsync();
             }
             catch
-            {
-                throw new Exception("Something went wrong");
-            }
-
-            return result;
-        }
-
-        public async Task<User> GetUserById(int id)
-        {
-            User result = new User();
-
-            try
-            {
-                result = await _baseDbContext.Users.FirstOrDefaultAsync(u => u.Id == id);
-            }
-            catch
-            {
-                throw new Exception("Something went wrong");
-            }
-
-            return result;
-        }
-
-        public async Task<User> GetUserByUrl(string url)
-        {
-            User result = new User();
-
-            try
-            {
-                var id = UrlHelper.FindUserIdByShortUrl(url);
-
-                result = await _baseDbContext.Users.FirstOrDefaultAsync(u => u.Id == id);
-            }
-            catch (Exception)
             {
                 throw new Exception("Something went wrong");
             }

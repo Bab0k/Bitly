@@ -1,24 +1,24 @@
 ﻿namespace Bitly.Controllers
 {
-    using Bitly.Services.UserService;
+    using Bitly.Services.LinkedLinksService;
     using Microsoft.AspNetCore.Mvc;
     using System.Threading.Tasks;
 
     public class HomeController : Controller
     {
-        private readonly IUserService _userService;
+        private readonly ILinkedLinksService _linkedLinksService;
 
-        public HomeController(IUserService userService)
+        public HomeController(ILinkedLinksService linkedLinksService)
         {
-            _userService = userService;
+            _linkedLinksService = linkedLinksService;
         }
 
         [HttpGet("/{url}")]
-        public async Task<IActionResult> GetUserByUrl(string url)
+        public async Task<RedirectResult> ShortLinkTransition(string url)
         {
-            var result = await _userService.GetUserByUrl(url);
+            var result = await _linkedLinksService.ShortLinkTransition(url);
 
-            return Ok(result);
+            return Redirect(result);
         }
     }
 }

@@ -8,10 +8,8 @@
     {
         Task<IEnumerable<User>> GetAllUsers();
 
-        Task<User> GetUserById(int id);
+        Task AddUser(string login, string password);
 
-        Task<User> GetUserByUrl(string url);
-
-        Task AddUser(string name);
+        int UserId { get; }
     }
 }
