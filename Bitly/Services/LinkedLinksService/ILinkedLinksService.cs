@@ -11,5 +11,9 @@
         Task<string> AddLink(string link);
 
         Task<string> ShortLinkTransition(string link);
+
+        Task UpdateLink(int id, string link);
+
+        Task DeleteLinkById(int Id);
     }
 }

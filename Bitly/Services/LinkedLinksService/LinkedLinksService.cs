@@ -58,6 +58,37 @@
             return result;
         }
 
+        public async Task UpdateLink(int id, string link)
+        {
+            var result = await _baseDbContext.LinkedLinks.AnyAsync(u => u.Id == id
+                                                           && u.UserId == _userService.UserId);
+
+            if (result)
+            {
+                _baseDbContext.LinkedLinks.Update(new LinkedLink
+                {
+                    Id = id,
+                    Link = link,
+                    UserId = _userService.UserId,
+                    ShortLink = Consts.BASE_URL + IndexToColumn(id),
+                });
+
+                await _baseDbContext.SaveChangesAsync();
+            }
+        }
+
+        public async Task DeleteLinkById(int Id)
+        {
+            var result = await _baseDbContext.LinkedLinks.FirstOrDefaultAsync(u => u.Id == Id && u.UserId == _userService.UserId);
+
+            if (result != null)
+            {
+                _baseDbContext.LinkedLinks.Remove(result);
+
+                await _baseDbContext.SaveChangesAsync();
+            }
+        }
+
         private static string IndexToColumn(int index)
         {
             if (index <= 0)

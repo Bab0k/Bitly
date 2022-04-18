@@ -1,5 +1,6 @@
 ﻿namespace Bitly.Controllers
 {
+    using Bitly.Models;
     using Bitly.Services.LinkedLinksService;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
@@ -31,6 +32,24 @@
             var result = await _linkedLinksService.AddLink(link);
 
             return Ok(result);
+        }
+
+        [HttpPut]
+        [Authorize]
+        public async Task<IActionResult> UpdateLink(int id, string link)
+        {
+            await _linkedLinksService.UpdateLink(id, link);
+
+            return Ok();
+        }
+
+        [HttpDelete]
+        [Authorize]
+        public async Task<IActionResult> DeleteLink(int id)
+        {
+            await _linkedLinksService.DeleteLinkById(id);
+
+            return Ok();
         }
     }
 }
